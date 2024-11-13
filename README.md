@@ -26,3 +26,6 @@ Describe how to use the application. Add photos or videos of your application.
 - I<sub>max</sub> = 360 mA
 - U<sub>max</sub> = 5,5 V
 
+### Servo Hitec HS-485HB
+
+

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMORY_H
+#define MEMORY_H
 #include <stdint.h>
 
 struct data
@@ -8,3 +9,4 @@ struct data
     uint8_t angle; // angle of solar panel
     uint16_t power; // power in mW/m^2 
 };
+#endif

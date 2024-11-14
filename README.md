@@ -27,5 +27,7 @@ Describe how to use the application. Add photos or videos of your application.
 - U<sub>max</sub> = 5,5 V
 
 ### Servo Hitec HS-485HB
+- U<sub>cc</sub> = 4,8 - 8,4 V
+- U<sub>in</sub> = 3 - 5 V
 
 

@@ -63,8 +63,8 @@
 /** @brief Disable overflow interrupt, 0 --> disable */
 #define TIM1_ovf_disable() TIMSK1 &= ~(1<<TOIE1);
 
-
-// Define 8-bit timer > Counter0
+/*
+// Define 8-bit timer > Counter0 as PWM
 /// Stop timer
 #define TIM0_stop() TCCR0B &= ~((1<<CS02) | (1<<CS01) | (1<<CS00));
 

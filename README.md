@@ -20,7 +20,7 @@ Knihovna poskytuje trojici funkcí obsluhující horizontální a vertikální s
 1. `servo_init()` 
 Funkce aktivuje neninvertující signály PWM a přiřazuje kanály na vybrané piny. V registru `TCCR1B` je nastaven mód ,,Phase and Frequency Correct PWM" [^1], který je dle [^2] vhodný pro řízení motorů. 
 
-Je nutné přizpůsobit frekvenci pulzů, u kterých budeme měnit střídu. Výrobce serva udává pracovní frekvenci 50 Hz. Strop modulace (čítače) je dána 16bitovým registrem ICR1. Právě jeho velikost omezuje potencionální jemnost kroku, kterou by bylo možné mít bez využití předděličky (160000 úrovní). Nejbližší nižší hodnota dělení hodinového pulzu je f<sub>CLK</sub>/8. S jeho použitím pak bude platit následující rovnice pro zisk hodnoty maxima (TOP):
+Je nutné přizpůsobit frekvenci pulzů, u kterých budeme měnit střídu. Výrobce serva udává pracovní frekvenci 50 Hz. Strop modulace (čítače) je dána 16bitovým registrem ICR1. Právě jeho velikost omezuje potencionální jemnost kroku, kterou by bylo možné mít bez využití předděličky (160000 úrovní). Nejbližší nižší hodnota dělení hodinového pulzu je f<sub>CLK</sub>/8. S jeho použitím pak bude platit následující rovnice pro zisk hodnoty maxima (v dokumentaci uváděno také jako TOP):
 
 ![Výpočet ICR1](./img/rovnice1.png)
 
@@ -70,9 +70,7 @@ Describe how to use the application. Add photos or videos of your application.
 - U<sub>in</sub> = 3 - 5 V
 
 ## Zdroje 
-### ATMEGA 328P datasheet
 [^1]: https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
-### PWM & Serva
 [^2]: https://avr-guide.github.io/pwm-on-the-atmega328/
 [^3]: https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
 [^4]: https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf

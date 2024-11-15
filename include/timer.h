@@ -64,8 +64,7 @@
 //#define TIM1_ovf_disable() TIMSK1 &= ~(1<<TOIE1);
 
 
-// Define 8-bit timer > Counter0 - USED FOR SOFTWARE CONTROLLED COUNTING
-/// Stop timer
+// Define 8-bit timer > Counter0 - USED AS A CLOCK FOR PWM
 #define TIM0_stop() TCCR0B &= ~((1<<CS02) | (1<<CS01) | (1<<CS00));
 
 /// No prescaling

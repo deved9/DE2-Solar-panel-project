@@ -31,6 +31,8 @@ Describe how to use the application. Add photos or videos of your application.
 - U<sub>in</sub> = 3 - 5 V
 
 ## Zdroje 
+### ATMEGA 328P datasheet
+https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
 ### PWM & Serva
 https://avr-guide.github.io/pwm-on-the-atmega328/
 https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/

@@ -8,7 +8,7 @@ void servo_init(void) {
 
     /// Set Compare Output Mode - non-inverting
     TCCR1A |= (1 << COM1A1) | (1 << COM1B1);  
-    //TCCR1A |= (1 << COM1A1);
+    
 
     /// Set Phase Correct and Phase and Frequency Correct PWM with ICR1 as TOP
     /// and connect CLK with CLK/8 prescaler
@@ -16,7 +16,7 @@ void servo_init(void) {
 
     // Define TOP (fixed)
     // WARNING: The input capture register is only 16-bit in size!
-    ICR1 = 20000; // = f_CLK / (2 * prescaler * f_desired) = 16e6 / (2 * 50)
+    ICR1 = 20000; // = f_CLK / (2 * prescaler * f_desired) = 16e6 / (2 * 8 * 50)
 
     // Init value (corresponding to angle)
     OCR1A = 900;
@@ -57,7 +57,7 @@ void servo_test() {
     
 }
 
-void turn_servo(bool horizontal, int8_t desired_angle) {
+void turn_servo(bool horizontal, uint8_t desired_angle) {
     // Transform from angle to PWM comparator level
     double transform = TRANSFORM_CONST * (double) desired_angle + TRANSFORM_OFFSET;
 

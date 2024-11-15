@@ -30,4 +30,10 @@ Describe how to use the application. Add photos or videos of your application.
 - U<sub>cc</sub> = 4,8 - 8,4 V
 - U<sub>in</sub> = 3 - 5 V
 
+## Zdroje 
+### PWM & Serva
+https://avr-guide.github.io/pwm-on-the-atmega328/
+https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
+https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf
+
 

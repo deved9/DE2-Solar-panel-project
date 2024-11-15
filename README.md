@@ -71,11 +71,11 @@ Describe how to use the application. Add photos or videos of your application.
 
 ## Zdroje 
 ### ATMEGA 328P datasheet
-[^1] https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
+[^1]: https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
 ### PWM & Serva
-[^2] https://avr-guide.github.io/pwm-on-the-atmega328/
-[^3] https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
-[^4] https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf
+[^2]: https://avr-guide.github.io/pwm-on-the-atmega328/
+[^3]: https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
+[^4]: https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf
 
 
 

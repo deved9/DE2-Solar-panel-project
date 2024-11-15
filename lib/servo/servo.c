@@ -28,33 +28,25 @@ void servo_test() {
     int16_t max = 2100;
     int16_t min = 900;
 
-    for(int16_t i=min;i<=max;i++){
-        OCR1A = i;
-        _delay_ms(1);
-    }
-    for(int16_t i=min;i<=max;i++){
-        OCR1B = i;
-        _delay_ms(1);
-    }
-    for(int16_t i=max;i>=min;i--){
-        OCR1A = i;
-        _delay_ms(1);
-    }
-    for(int16_t i=max;i>=min;i--){
-        OCR1B = i;
-        _delay_ms(1);
-    }
-    for(int16_t i=min;i<=max;i++){
-        OCR1A = i;
-        OCR1B = i;
-        _delay_ms(1);
-    }
-    for(int16_t i=max;i>=min;i--){
-        OCR1A = i;
-        OCR1B = i;
-        _delay_ms(1);
-    }
-    
+    OCR1A = max;
+    _delay_ms(1000);
+
+    OCR1B = max;
+    _delay_ms(1000);
+
+    OCR1A = min;
+    _delay_ms(1000);
+
+    OCR1B = min;
+    _delay_ms(1000);
+
+    OCR1A = max;
+    OCR1B = max;
+    _delay_ms(1000);
+
+    OCR1A = min;
+    OCR1B = min;
+    _delay_ms(1000);
 }
 
 void turn_servo(bool horizontal, uint8_t desired_angle) {

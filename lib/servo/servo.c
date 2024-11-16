@@ -1,4 +1,4 @@
-#include <servo.h>
+#include "servo.h"
 
 void servo_init(void) {
     // Set Timer/Couter1 as PWM

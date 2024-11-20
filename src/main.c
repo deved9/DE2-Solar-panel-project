@@ -36,6 +36,9 @@ int main()
     TIM0_ovf_enable();
     //DDRC = 0;
     
+    TIM2_ovf_16ms();
+    TIM2_ovf_enable();
+
     sei();
     uart_init(UART_BAUD_SELECT(115200, F_CPU));
 
@@ -119,4 +122,10 @@ ISR(TIMER0_OVF_vect)
             uart_puts("move down\r\n");
         }  
     }
+}
+
+ISR(TIMER2_OVF_vect)
+{
+
+
 }

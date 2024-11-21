@@ -1,7 +1,6 @@
 #include "analog.h"
 
-#include <stdint.h>
-#include <avr/io.h>
+
 
 
 void analog_init()

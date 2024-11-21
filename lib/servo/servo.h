@@ -3,6 +3,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdbool.h> 
+#include "uart.h"
 
 // Servo port and pin definitions
 #define SERVO_PORT DDRB

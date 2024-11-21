@@ -1,6 +1,7 @@
 #include "servo.h"
 
 void servo_init(void) {
+    uart_puts("Servo init. \r\n");
     // Set Timer/Couter1 as PWM
     /// Assign output pins to port
     SERVO_PORT |= (1 << HORIZONTAL_SERVO_PIN) | (1 << VERTICAL_SERVO_PIN);
@@ -25,6 +26,8 @@ void servo_init(void) {
 }
 
 void servo_test() {
+    uart_puts("Servo test \r\n");
+
     int16_t max = 2100;
     int16_t min = 900;
 
@@ -47,9 +50,21 @@ void servo_test() {
     OCR1A = min;
     OCR1B = min;
     _delay_ms(1000);
+
+    _delay_ms(1000);
 }
 
 void turn_servo(bool horizontal, uint8_t desired_angle) {
+    if (desired_angle < 0 || desired_angle > 180) {
+        char str[8];
+        itoa(desired_angle, str, 10);
+        uart_puts("Invalid angle parameter for");
+        uart_puts((horizontal) ? " horizontal " : " vertical ");
+        uart_puts("servo to turn to ");
+        uart_puts(" degrees. \r\n");
+        return;
+
+    }
     // Transform from angle to PWM comparator level
     double transform = TRANSFORM_CONST * (double) desired_angle + TRANSFORM_OFFSET;
 

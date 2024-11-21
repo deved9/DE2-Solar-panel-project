@@ -1,16 +1,18 @@
 #include "memory.h"
 #include "servo.h"
-#include <analog.h>
+#include "analog.h"
 #include "timer.h"
 #include "uart.h"
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include <util/delay.h>
 
-//#define debug
+#define debug
 
 // CPU clock
-#define F_CPU 16000000  // CPU frequency in Hz required for UART_BAUD_SELECT
+#ifndef F_CPU
+    #define F_CPU 16000000  // CPU frequency in Hz required for UART_BAUD_SELECT
+#endif
 
 // PIN assignmesnt
 // Photoresistors (anaolg pins)
@@ -32,6 +34,13 @@ int main()
     propertires.angle_horitzontal = 0;
     propertires.angle_vertical = 0;
 
+    uart_init(UART_BAUD_SELECT(115200, F_CPU));
+    sei();
+    servo_init();
+    servo_test();
+    analog_init();
+    cli();
+
     TIM0_ovf_16ms();
     TIM0_ovf_enable();
     //DDRC = 0;
@@ -40,16 +49,9 @@ int main()
     TIM2_ovf_enable();
 
     sei();
-    uart_init(UART_BAUD_SELECT(115200, F_CPU));
-
-    servo_init();
-    analog_init();
-
+    
 
     while(1) {
-    //servo_test();
-    turn_servo(true, propertires.angle_horitzontal);
-    turn_servo(false, propertires.angle_vertical);
     }
 
     return 0;
@@ -63,7 +65,7 @@ ISR(TIMER0_OVF_vect)
     TIM0_int_count++;
 
     // wait 13 interrupts (cca 200ms)
-    if(TIM0_int_count == 100)
+    if(TIM0_int_count == 13)
     {
         // reset count value
         TIM0_int_count = 0;
@@ -103,23 +105,26 @@ ISR(TIMER0_OVF_vect)
         {
             // change horizontal servo angle
             uart_puts("move right\r\n");
-
+            turn_servo(true, ++propertires.angle_horitzontal);
         }
         else if (horizontal_diff < -PR_THR) // more light on the right
         {
             // change horizontal servo angle
             uart_puts("move left\r\n");
+            turn_servo(true, --propertires.angle_horitzontal);
         }
         
         if (vertical_diff > PR_THR) // more light on the top
         {
-            // change horizontal servo angle
+            // change vertical servo angle
             uart_puts("move up\r\n");
+            turn_servo(false, ++propertires.angle_vertical);
         }
-        else if (horizontal_diff < -PR_THR) // more light on the bottom
+        else if (vertical_diff < -PR_THR) // more light on the bottom
         {
             // change horizontal servo angle
             uart_puts("move down\r\n");
+            turn_servo(false, --propertires.angle_vertical);
         }  
     }
 }

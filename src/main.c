@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-#define debug
+//#define debug
 
 // CPU clock
 #ifndef F_CPU
@@ -31,25 +31,24 @@ struct data propertires;
 
 int main()
 {
-    propertires.angle_horitzontal = 0;
-    propertires.angle_vertical = 0;
-
-    uart_init(UART_BAUD_SELECT(115200, F_CPU));
-    sei();
     servo_init();
     servo_test();
     analog_init();
-    cli();
+
+    propertires.angle_horitzontal = 0;
+    propertires.angle_vertical = 0;
 
     TIM0_ovf_16ms();
     TIM0_ovf_enable();
-    //DDRC = 0;
-    
+
     TIM2_ovf_16ms();
     TIM2_ovf_enable();
 
+
     sei();
-    
+    uart_init(UART_BAUD_SELECT(115200, F_CPU));
+
+    uart_puts("Init - DONE");
 
     while(1) {
     }
@@ -62,14 +61,14 @@ int main()
 ISR(TIMER0_OVF_vect)
 {
     static uint8_t TIM0_int_count = 0;
-    TIM0_int_count++;
+    ++TIM0_int_count;
+
 
     // wait 13 interrupts (cca 200ms)
     if(TIM0_int_count == 13)
     {
-        // reset count value
-        TIM0_int_count = 0;
-
+        
+        bool err = false;
         // read photoresistor values
         uint16_t pr_ul = analog_read(PR_UL); // upper - left
         uint16_t pr_ur = analog_read(PR_UR); // upper - right
@@ -98,34 +97,52 @@ ISR(TIMER0_OVF_vect)
         uart_puts("\r\n");
         #endif
 
-        int16_t horizontal_diff = left - right;
+        int16_t horizontal_diff = right - left;
         int16_t vertical_diff = top - bottom;
 
         if (horizontal_diff > PR_THR) // more light on the right
         {
             // change horizontal servo angle
-            uart_puts("move right\r\n");
-            turn_servo(true, ++propertires.angle_horitzontal);
+            err = turn_servo(true, ++propertires.angle_horitzontal);
+            if (err) {
+                propertires.angle_horitzontal--;
+                err = false;
+            }
         }
         else if (horizontal_diff < -PR_THR) // more light on the right
         {
             // change horizontal servo angle
             uart_puts("move left\r\n");
-            turn_servo(true, --propertires.angle_horitzontal);
+            err = turn_servo(true, --propertires.angle_horitzontal);
+            if (err) {
+                propertires.angle_horitzontal++;
+                err = false;
+            }
         }
         
         if (vertical_diff > PR_THR) // more light on the top
         {
             // change vertical servo angle
             uart_puts("move up\r\n");
-            turn_servo(false, ++propertires.angle_vertical);
+            err = turn_servo(false, ++propertires.angle_vertical);
+            if (err) {
+                propertires.angle_vertical--;
+                err = false;
+            }
         }
         else if (vertical_diff < -PR_THR) // more light on the bottom
         {
             // change horizontal servo angle
             uart_puts("move down\r\n");
-            turn_servo(false, --propertires.angle_vertical);
-        }  
+            err = turn_servo(false, --propertires.angle_vertical);
+            if (err) {
+                propertires.angle_vertical++;
+                err = false;
+            }
+        } 
+
+        // reset count value
+        TIM0_int_count = 0;
     }
 }
 

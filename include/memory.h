@@ -10,4 +10,5 @@ struct data
     uint8_t angle_vertical; // vertical angle of solar panel
     uint16_t power; // power in mW/m^2 
 };
+
 #endif

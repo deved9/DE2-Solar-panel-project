@@ -1,3 +1,4 @@
+#include <avr/io.h>
 #include "memory.h"
 #include "servo.h"
 #include "analog.h"
@@ -29,6 +30,7 @@
 
 // Global memory init
 struct data propertires;
+volatile bool measure = false;
 
 int main()
 {
@@ -39,6 +41,8 @@ int main()
     propertires.angle_horitzontal = 0;
     propertires.angle_vertical = 0;
 
+    uart_init(UART_BAUD_SELECT(115200, F_CPU));
+
     TIM0_ovf_16ms();
     TIM0_ovf_enable();
 
@@ -47,13 +51,74 @@ int main()
 
 
     sei();
-    uart_init(UART_BAUD_SELECT(115200, F_CPU));
+    
 
-    uart_puts("Init - DONE");
+    uart_puts("Init - DONE \r\n");
 
     while(1) {
-    }
+        if (measure) {   
+            cli();    
+            uint16_t upper_left = analog_read(PR_UL); // upper - left
+            uint16_t upper_right = analog_read(PR_UR); // upper - right
+            uint16_t lower_left = analog_read(PR_LL); // lower - left
+            uint16_t lower_right = analog_read(PR_LR); // lower - right     
 
+            bool err = false;
+            // average neighbours
+            // higher number means less light
+            uint16_t left    = (upper_left + lower_left) / 2; // >> 1 can be used for faster and somewhat accurate division
+            uint16_t right   = (upper_right + lower_right) / 2;
+            uint16_t top     = (upper_left + upper_right) / 2;
+            uint16_t bottom  = (lower_left + lower_right) / 2;
+
+            int16_t horizontal_diff = right - left;
+            int16_t vertical_diff = top - bottom;
+
+            if (horizontal_diff > PR_THR) // more light on the right
+            {
+                // change horizontal servo angle
+                err = turn_servo(true, ++propertires.angle_horitzontal);
+                if (err) {
+                    propertires.angle_horitzontal--;
+                    err = false;
+                }
+            }
+            else if (horizontal_diff < -PR_THR) // more light on the right
+            {
+                // change horizontal servo angle
+                uart_puts("move left\r\n");
+                err = turn_servo(true, --propertires.angle_horitzontal);
+                if (err) {
+                    propertires.angle_horitzontal++;
+                    err = false;
+                }
+            }
+        
+            if (vertical_diff > PR_THR) // more light on the top
+            {
+                // change vertical servo angle
+                uart_puts("move up\r\n");
+                err = turn_servo(false, ++propertires.angle_vertical);
+                if (err) {
+                    propertires.angle_vertical--;
+                    err = false;
+                }
+            }
+            else if (vertical_diff < -PR_THR) // more light on the bottom
+            {
+                // change horizontal servo angle
+                uart_puts("move down\r\n");
+                err = turn_servo(false, --propertires.angle_vertical);
+                if (err) {
+                    propertires.angle_vertical++;
+                    err = false;
+                }
+            } 
+            sei();
+            measure = false;
+        }
+    }
+    
     return 0;
 }
 
@@ -64,83 +129,11 @@ ISR(TIMER0_OVF_vect)
     static uint8_t TIM0_int_count = 0;
     ++TIM0_int_count;
 
-
+    
     // wait 13 interrupts (cca 200ms)
-    if(TIM0_int_count == 13)
+    if(TIM0_int_count == 20)
     {
-        
-        bool err = false;
-        // read photoresistor values
-        uint16_t pr_ul = analog_read(PR_UL); // upper - left
-        uint16_t pr_ur = analog_read(PR_UR); // upper - right
-        uint16_t pr_ll = analog_read(PR_LL); // lower - left
-        uint16_t pr_lr = analog_read(PR_LR); // lower - right
-
-        // average neighbours
-        // higher number means less light
-        uint16_t left    = (pr_ul + pr_ll) / 2; // >> 1 can be used for faster and somewhat accurate division
-        uint16_t right   = (pr_ur + pr_lr) / 2;
-        uint16_t top     = (pr_ul + pr_ur) / 2;
-        uint16_t bottom  = (pr_ll + pr_lr) / 2;
-        
-        #ifdef debug
-        char str[16];
-        itoa(pr_ul, str, 10);
-        uart_puts("Upper left: ");
-        uart_puts(str);
-        uart_puts("\r\n");
-
-        _delay_ms(10);
-
-        itoa(pr_ur, str, 10);
-        uart_puts("Upper right: ");
-        uart_puts(str);
-        uart_puts("\r\n");
-        #endif
-
-        int16_t horizontal_diff = right - left;
-        int16_t vertical_diff = top - bottom;
-
-        if (horizontal_diff > PR_THR) // more light on the right
-        {
-            // change horizontal servo angle
-            err = turn_servo(true, ++propertires.angle_horitzontal);
-            if (err) {
-                propertires.angle_horitzontal--;
-                err = false;
-            }
-        }
-        else if (horizontal_diff < -PR_THR) // more light on the right
-        {
-            // change horizontal servo angle
-            uart_puts("move left\r\n");
-            err = turn_servo(true, --propertires.angle_horitzontal);
-            if (err) {
-                propertires.angle_horitzontal++;
-                err = false;
-            }
-        }
-        
-        if (vertical_diff > PR_THR) // more light on the top
-        {
-            // change vertical servo angle
-            uart_puts("move up\r\n");
-            err = turn_servo(false, ++propertires.angle_vertical);
-            if (err) {
-                propertires.angle_vertical--;
-                err = false;
-            }
-        }
-        else if (vertical_diff < -PR_THR) // more light on the bottom
-        {
-            // change horizontal servo angle
-            uart_puts("move down\r\n");
-            err = turn_servo(false, --propertires.angle_vertical);
-            if (err) {
-                propertires.angle_vertical++;
-                err = false;
-            }
-        } 
+        measure = true;
 
         // reset count value
         TIM0_int_count = 0;

@@ -6,6 +6,7 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include <util/delay.h>
+#include "oled.h"
 
 //#define debug
 
@@ -148,6 +149,32 @@ ISR(TIMER0_OVF_vect)
 
 ISR(TIMER2_OVF_vect)
 {
+    static uint16_t n_ovfs = 0; // counter variable
 
+    n_ovfs++;
+    if (n_ovfs >= 62) // 62 interrupts = cca 1s
+    { 
+        n_ovfs = 0; // reset
 
+        // display setup
+        oled_init(OLED_DISP_ON);
+        oled_clrscr();
+        oled_charMode(NORMALSIZE);
+
+        // set position and show text with values
+        oled_gotoxy(0, 1);
+        oled_puts(("Current: %u mA", propertires.current));
+
+        oled_gotoxy(0, 2);
+        oled_puts(("Voltage: %u mV", propertires.voltage));
+
+        oled_gotoxy(0, 3);
+        oled_puts(("Vertical angle: %u deg", propertires.angle_vertical));
+
+        oled_gotoxy(0, 4);
+        oled_puts(("Power: %u mW/m2", propertires.power));
+
+        // copy buffer to display RAM
+        oled_display();
+    }
 }

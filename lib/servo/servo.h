@@ -8,8 +8,8 @@
 
 // Servo port and pin definitions
 #define SERVO_PORT DDRB
-#define HORIZONTAL_SERVO_PIN DDB1
-#define VERTICAL_SERVO_PIN DDB2
+#define HORIZONTAL_SERVO_PIN PB1
+#define VERTICAL_SERVO_PIN PB2
 
 // Defined for servo Hitec HS-485HB
 #define TRANSFORM_CONST 20/3 //Constant of angle-to-compare level transform

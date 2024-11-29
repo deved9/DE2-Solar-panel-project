@@ -35,7 +35,7 @@ volatile bool measure = false;
 int main()
 {
     servo_init();
-    servo_test();
+    //servo_test();
     analog_init();
 
     propertires.angle_horitzontal = 0;
@@ -77,6 +77,7 @@ int main()
             if (horizontal_diff > PR_THR) // more light on the right
             {
                 // change horizontal servo angle
+                uart_puts("move right\r\n");
                 err = turn_servo(true, ++propertires.angle_horitzontal);
                 if (err) {
                     propertires.angle_horitzontal--;
@@ -98,7 +99,7 @@ int main()
             {
                 // change vertical servo angle
                 uart_puts("move up\r\n");
-                err = turn_servo(false, ++propertires.angle_vertical);
+                err = turn_servo(false, --propertires.angle_vertical);
                 if (err) {
                     propertires.angle_vertical--;
                     err = false;
@@ -108,7 +109,7 @@ int main()
             {
                 // change horizontal servo angle
                 uart_puts("move down\r\n");
-                err = turn_servo(false, --propertires.angle_vertical);
+                err = turn_servo(false, ++propertires.angle_vertical);
                 if (err) {
                     propertires.angle_vertical++;
                     err = false;

@@ -23,14 +23,27 @@
 #define PR_LL 2
 #define PR_LR 3
 
+// solar panel current and voltage
+#define SOLAR_I 4
+#define SOLAR_V 5
+
 
 // constants
 // Photoresistors
 #define PR_THR  50
 
+// solar power measurement
+#define R_H 1000
+#define R_L 10000
+#define CURR_CONST 9.76 // I(mA)/512
+#define CURR_OFFSET 512  // VCC/2
+
+
 // Global memory init
 struct data propertires;
-volatile bool measure = false;
+volatile bool measure_angle = false;
+volatile bool measure_panel = false;
+
 
 int main()
 {
@@ -56,7 +69,7 @@ int main()
     uart_puts("Init - DONE \r\n");
 
     while(1) {
-        if (measure) {   
+        if (measure_angle) {   
             cli();    
             uint16_t upper_left = analog_read(PR_UL); // upper - left
             uint16_t upper_right = analog_read(PR_UR); // upper - right
@@ -116,7 +129,13 @@ int main()
                 }
             } 
             sei();
-            measure = false;
+            measure_angle = false;
+        }
+
+        if(measure_panel)
+        {
+            propertires.voltage = analog_read(SOLAR_V) * 5000/1023 * ((R_L+R_H)/R_L);
+            propertires.current = ( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST;
         }
     }
     
@@ -132,9 +151,9 @@ ISR(TIMER0_OVF_vect)
 
     
     // wait 13 interrupts (cca 200ms)
-    if(TIM0_int_count == 20)
+    if(TIM0_int_count == 13)
     {
-        measure = true;
+        measure_angle = true;
 
         // reset count value
         TIM0_int_count = 0;

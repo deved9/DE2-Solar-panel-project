@@ -136,6 +136,7 @@ int main()
         {
             propertires.voltage = analog_read(SOLAR_V) * 5000/1023 * ((R_L+R_H)/R_L);
             propertires.current = ( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST;
+            measure_panel = false;
         }
     }
     
@@ -146,17 +147,26 @@ int main()
 --------------------------------------------------------*/
 ISR(TIMER0_OVF_vect)
 {
-    static uint8_t TIM0_int_count = 0;
-    ++TIM0_int_count;
-
+    static uint8_t TIM0_int_count_angle = 0;
+    static uint8_t TIM0_int_count_panel = 0;
+    ++TIM0_int_count_angle;
+    ++TIM0_int_count_panel;
     
     // wait 13 interrupts (cca 200ms)
-    if(TIM0_int_count == 13)
+    if(TIM0_int_count_angle == 13)
     {
         measure_angle = true;
 
         // reset count value
-        TIM0_int_count = 0;
+        TIM0_int_count_angle = 0;
+    }
+
+    if(TIM0_int_count_panel == 35)
+    {
+        measure_panel = true;
+
+        // reset count value
+        TIM0_int_count_panel = 0;
     }
 }
 

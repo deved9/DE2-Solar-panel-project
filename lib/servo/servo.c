@@ -29,7 +29,7 @@ void servo_init(void) {
 void servo_test() {
 
 
-    int16_t max = 2100;
+    int16_t max = 1300;
     int16_t min = 900;
 
     OCR1A = max;
@@ -56,7 +56,7 @@ void servo_test() {
 
 }
 
-bool turn_servo(bool horizontal, uint8_t desired_angle) {
+bool turn_servo(bool horizontal, int16_t desired_angle) {
     if (desired_angle < 0 || desired_angle > 180) { return true; }
     
     // Transform from angle to PWM comparator level

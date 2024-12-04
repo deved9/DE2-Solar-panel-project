@@ -81,7 +81,7 @@
  *  CDEFS += -DUART_RX_BUFFER_SIZE=nn to your Makefile.
  */
 #ifndef UART_RX_BUFFER_SIZE
-# define UART_RX_BUFFER_SIZE 64
+# define UART_RX_BUFFER_SIZE 128
 #endif
 
 /** @brief  Size of the circular transmit buffer, must be power of 2

@@ -36,7 +36,7 @@
 #define R_H 1000
 #define R_L 10000
 #define CURR_CONST 9.76 // I(mA)/512
-#define CURR_OFFSET 512  // VCC/2
+#define CURR_OFFSET 509  // VCC/2
 
 
 // Global memory init
@@ -49,7 +49,7 @@ volatile bool update_screen = false;
 int main()
 {
     servo_init();
-    servo_test();
+    //servo_test();
     analog_init();
 
     propertires.angle_horitzontal = 0;
@@ -99,9 +99,9 @@ int main()
             {
                 // change horizontal servo angle
                 uart_puts("move right\r\n");
-                err = turn_servo(true, ++propertires.angle_horitzontal);
+                err = turn_servo(true, --propertires.angle_horitzontal);
                 if (err) {
-                    propertires.angle_horitzontal--;
+                    propertires.angle_horitzontal++;
                     err = false;
                 }
             }
@@ -109,9 +109,9 @@ int main()
             {
                 // change horizontal servo angle
                 uart_puts("move left\r\n");
-                err = turn_servo(true, --propertires.angle_horitzontal);
+                err = turn_servo(true, ++propertires.angle_horitzontal);
                 if (err) {
-                    propertires.angle_horitzontal++;
+                    propertires.angle_horitzontal--;
                     err = false;
                 }
             }
@@ -120,9 +120,9 @@ int main()
             {
                 // change vertical servo angle
                 uart_puts("move up\r\n");
-                err = turn_servo(false, --propertires.angle_vertical);
+                err = turn_servo(false, ++propertires.angle_vertical);
                 if (err) {
-                    propertires.angle_vertical++;
+                    propertires.angle_vertical--;
                     err = false;
                 }
             }
@@ -130,9 +130,9 @@ int main()
             {
                 // change horizontal servo angle
                 uart_puts("move down\r\n");
-                err = turn_servo(false, ++propertires.angle_vertical);
+                err = turn_servo(false, --propertires.angle_vertical);
                 if (err) {
-                    propertires.angle_vertical--;
+                    propertires.angle_vertical++;
                     err = false;
                 }
             } 
@@ -143,8 +143,9 @@ int main()
         if(measure_panel)
         {
             cli();
-            propertires.voltage = analog_read(SOLAR_V); //+  5000/1023 * ((R_L+R_H)/R_L);
-            propertires.current = ( analog_read(SOLAR_I));// - CURR_OFFSET ) //* CURR_CONST;
+            propertires.voltage = (int16_t)analog_read(SOLAR_V);
+            propertires.voltage = (int16_t)((propertires.voltage *  4.88759));
+            propertires.current = (int16_t)(( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST);
             measure_panel = false;
             sei();
         }
@@ -154,8 +155,8 @@ int main()
             cli();
             char current[4];
             char voltage[4];
-            char vertical_angle[2];
-            char power[4];
+            char vertical_angle[3];
+            char power[3];
 
             //oled_init(OLED_DISP_ON);
             //oled_clrscr();
@@ -221,24 +222,43 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 4);
-            sprintf(vertical_angle,"%d", propertires.angle_vertical);
+            sprintf(vertical_angle,"%d", propertires.angle_vertical-90);
+            oled_puts("   ");
+            oled_gotoxy(13, 4);
             oled_puts(vertical_angle);
-
+/*
             // row 4
             oled_charMode(NORMALSIZE);
             oled_gotoxy(0, 6);
             oled_puts("Power");
-
             oled_gotoxy(0, 7);
-            oled_puts("[mW/m2]");
+            oled_puts("[mW]");
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 6);
             sprintf(power,"%d", propertires.power);
+            oled_puts("    ");
+            oled_gotoxy(13, 6);
+            oled_puts(power);
+*/
+             // row 3
+            oled_charMode(NORMALSIZE);
+            oled_gotoxy(0, 6);
+            oled_puts("Horiz. ang");
+
+            oled_gotoxy(0, 7);
+            oled_puts("[deg]");
+
+            oled_charMode(DOUBLESIZE);
+            oled_gotoxy(13, 6);
+            sprintf(power,"%d", propertires.angle_horitzontal);
+            oled_puts("   ");
+            oled_gotoxy(13, 6);
             oled_puts(power);
 
             // copy buffer to display RAM
             oled_display();
+            update_screen = false;
             sei();
         }
         
@@ -267,7 +287,7 @@ ISR(TIMER0_OVF_vect)
         TIM0_int_count_angle = 0;
     }
 
-    if(TIM0_int_count_panel == 35)  // cca 300ms
+    if(TIM0_int_count_panel == 62)  // cca 300ms
     {
         measure_panel = true;
 
@@ -287,4 +307,4 @@ ISR(TIMER2_OVF_vect)
 {
     
 }
-/**/
+*/

@@ -26,6 +26,6 @@ void servo_test();
 /// @brief Funtion to control one specified servo
 /// @param horizontal Boolean - set as TRUE to control horizontal servo, FALSE to control vertical
 /// @param desired_angle Integer value of desired angle from 0 to 180
-bool turn_servo(bool horizontal, uint8_t desired_angle);
+bool turn_servo(bool horizontal, int16_t desired_angle);
 
 #endif

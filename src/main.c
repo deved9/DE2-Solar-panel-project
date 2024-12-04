@@ -24,23 +24,18 @@
 #define PR_LR 3
 
 // solar panel current and voltage
-#define SOLAR_I 6
-#define SOLAR_V 7
+#define SOLAR_V 6
 
 
 // constants
 // Photoresistors
 #define PR_THR  50
 
-// solar power measurement
-#define R_H 1000
-#define R_L 10000
-#define CURR_CONST 9.76 // I(mA)/512
-#define CURR_OFFSET 509  // VCC/2
-
 
 // Global memory init
 struct data propertires;
+
+//  Interrupt flags
 volatile bool measure_angle = false;
 volatile bool measure_panel = false;
 volatile bool update_screen = false;
@@ -48,16 +43,19 @@ volatile bool update_screen = false;
 
 int main()
 {
+    // Init servo and analog library
     servo_init();
     //servo_test();
     analog_init();
 
+    // Set default values to memory
     propertires.angle_horitzontal = 0;
     propertires.angle_vertical = 0;
     propertires.current = 0;
     propertires.voltage = 0;
     propertires.power = 0;
 
+    // Init UART, I2C and OLED display
     uart_init(UART_BAUD_SELECT(115200, F_CPU));
     oled_init(OLED_DISP_ON);
     oled_clrscr();
@@ -71,14 +69,19 @@ int main()
     TIM2_ovf_enable();
     */
 
+    // Enable interrupts
     sei();
     
 
     uart_puts("Init - DONE \r\n");
 
     while(1) {
+        // Handle panel move interrupt
         if (measure_angle) {   
+            // Disable interrupts
             cli();    
+
+            // Read values of voltage dividers
             uint16_t upper_left = analog_read(PR_UL); // upper - left
             uint16_t upper_right = analog_read(PR_UR); // upper - right
             uint16_t lower_left = analog_read(PR_LL); // lower - left
@@ -87,7 +90,7 @@ int main()
             bool err = false;
             // average neighbours
             // higher number means less light
-            uint16_t left    = (upper_left + lower_left) / 2; // >> 1 can be used for faster and somewhat accurate division
+            uint16_t left    = (upper_left + lower_left) / 2;
             uint16_t right   = (upper_right + lower_right) / 2;
             uint16_t top     = (upper_left + upper_right) / 2;
             uint16_t bottom  = (lower_left + lower_right) / 2;
@@ -105,7 +108,7 @@ int main()
                     err = false;
                 }
             }
-            else if (horizontal_diff < -PR_THR) // more light on the right
+            else if (horizontal_diff < -PR_THR) // more light on the left
             {
                 // change horizontal servo angle
                 uart_puts("move left\r\n");
@@ -136,6 +139,8 @@ int main()
                     err = false;
                 }
             } 
+
+            // Reset interrupt flag and enable interrupts
             measure_angle = false;
             sei();
         }
@@ -143,9 +148,10 @@ int main()
         if(measure_panel)
         {
             cli();
+
+            // Read solar panel voltage
             propertires.voltage = (int16_t)analog_read(SOLAR_V);
             propertires.voltage = (int16_t)((propertires.voltage *  4.88759));
-            propertires.current = (int16_t)(( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST);
             measure_panel = false;
             sei();
         }
@@ -156,7 +162,7 @@ int main()
             char current[4];
             char voltage[4];
             char vertical_angle[3];
-            char power[3];
+            char horizontal_angle[3];
 
             //oled_init(OLED_DISP_ON);
             //oled_clrscr();
@@ -178,10 +184,11 @@ int main()
             oled_puts(vertical_angle);
 
             oled_gotoxy(0, 5);
-            sprintf(power,"Power: %d mW/m2", propertires.power);
+            sprintf(horizontal_angle,"horizontal_angle: %d mW/m2", propertires.horizontal_angle);
             oled_puts(p ower);
             */
 
+            /*
             // row 1
             oled_charMode(NORMALSIZE);
             oled_gotoxy(0, 0);
@@ -196,6 +203,7 @@ int main()
             oled_puts("    ");
             oled_gotoxy(13, 0);
             oled_puts(current);
+            */
 
             // row 2
             oled_charMode(NORMALSIZE);
@@ -226,22 +234,8 @@ int main()
             oled_puts("   ");
             oled_gotoxy(13, 4);
             oled_puts(vertical_angle);
-/*
-            // row 4
-            oled_charMode(NORMALSIZE);
-            oled_gotoxy(0, 6);
-            oled_puts("Power");
-            oled_gotoxy(0, 7);
-            oled_puts("[mW]");
 
-            oled_charMode(DOUBLESIZE);
-            oled_gotoxy(13, 6);
-            sprintf(power,"%d", propertires.power);
-            oled_puts("    ");
-            oled_gotoxy(13, 6);
-            oled_puts(power);
-*/
-             // row 3
+             // row 4
             oled_charMode(NORMALSIZE);
             oled_gotoxy(0, 6);
             oled_puts("Horiz. ang");
@@ -251,12 +245,12 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 6);
-            sprintf(power,"%d", propertires.angle_horitzontal);
+            sprintf(horizontal_angle,"%d", propertires.angle_horitzontal);
             oled_puts("   ");
             oled_gotoxy(13, 6);
-            oled_puts(power);
+            oled_puts(horizontal_angle);
 
-            // copy buffer to display RAM
+            // copy buffer to display RAM and reset interrupt flag
             oled_display();
             update_screen = false;
             sei();
@@ -287,7 +281,7 @@ ISR(TIMER0_OVF_vect)
         TIM0_int_count_angle = 0;
     }
 
-    if(TIM0_int_count_panel == 62)  // cca 300ms
+    if(TIM0_int_count_panel == 62)  // cca 1s
     {
         measure_panel = true;
 

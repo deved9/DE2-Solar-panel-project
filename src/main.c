@@ -43,6 +43,7 @@
 struct data propertires;
 volatile bool measure_angle = false;
 volatile bool measure_panel = false;
+volatile bool update_screen = false;
 
 
 int main()
@@ -55,13 +56,15 @@ int main()
     propertires.angle_vertical = 0;
 
     uart_init(UART_BAUD_SELECT(115200, F_CPU));
+    oled_init(OLED_DISP_ON);
 
     TIM0_ovf_16ms();
     TIM0_ovf_enable();
 
+    /*
     TIM2_ovf_16ms();
     TIM2_ovf_enable();
-
+    */
 
     sei();
     
@@ -128,16 +131,107 @@ int main()
                     err = false;
                 }
             } 
-            sei();
             measure_angle = false;
+            sei();
         }
 
         if(measure_panel)
         {
+            cli();
             propertires.voltage = analog_read(SOLAR_V) * 5000/1023 * ((R_L+R_H)/R_L);
             propertires.current = ( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST;
             measure_panel = false;
+            sei();
         }
+
+        if (update_screen)
+        {
+            cli();
+            char current[1];
+            char voltage[1];
+            char vertical_angle[1];
+            char power[1];
+
+            oled_init(OLED_DISP_ON);
+            oled_clrscr();
+            oled_charMode(NORMALSIZE);
+
+            // Different layout
+            /*
+            // set position and show text with values
+            oled_gotoxy(0, 2);
+            sprintf(current,"Current: %d mA", propertires.current);
+            oled_puts(current);
+
+            oled_gotoxy(0, 3);
+            sprintf(voltage,"Voltage: %d mV", propertires.voltage);
+            oled_puts(voltage);
+
+            oled_gotoxy(0, 4);
+            sprintf(vertical_angle,"Vertical ang: %d", propertires.angle_vertical);
+            oled_puts(vertical_angle);
+
+            oled_gotoxy(0, 5);
+            sprintf(power,"Power: %d mW/m2", propertires.power);
+            oled_puts(power);
+            */
+
+            // row 1
+            oled_gotoxy(0, 0);
+            oled_puts("Current");
+
+            oled_gotoxy(0, 1);
+            oled_puts("[mA]");
+
+            oled_charMode(DOUBLESIZE);
+            oled_gotoxy(13, 0);
+            sprintf(current,"%d", propertires.current);
+            oled_puts(current);
+
+            // row 2
+            oled_charMode(NORMALSIZE);
+            oled_gotoxy(0, 2);
+            oled_puts("Voltage");
+
+            oled_gotoxy(0, 3);
+            oled_puts("[mV]");
+
+            oled_charMode(DOUBLESIZE);
+            oled_gotoxy(13, 2);
+            sprintf(voltage,"%d", propertires.voltage);
+            oled_puts(voltage);
+
+            // row 3
+            oled_charMode(NORMALSIZE);
+            oled_gotoxy(0, 4);
+            oled_puts("Vertical ang");
+
+            oled_gotoxy(0, 5);
+            oled_puts("[deg]");
+
+            oled_charMode(DOUBLESIZE);
+            oled_gotoxy(13, 4);
+            sprintf(vertical_angle,"%d", propertires.angle_vertical);
+            oled_puts(vertical_angle);
+
+            // row 4
+            oled_charMode(NORMALSIZE);
+            oled_gotoxy(0, 6);
+            oled_puts("Power");
+
+            oled_gotoxy(0, 7);
+            oled_puts("[mW/m2]");
+
+            oled_charMode(DOUBLESIZE);
+            oled_gotoxy(13, 6);
+            sprintf(power,"%d", propertires.power);
+            oled_puts(power);
+
+            // copy buffer to display RAM
+            oled_display();
+            sei();
+        }
+        
     }
     
     return 0;
@@ -149,8 +243,10 @@ ISR(TIMER0_OVF_vect)
 {
     static uint8_t TIM0_int_count_angle = 0;
     static uint8_t TIM0_int_count_panel = 0;
+    static uint16_t screen_n_ovfs = 0; // counter variable
     ++TIM0_int_count_angle;
     ++TIM0_int_count_panel;
+    screen_n_ovfs++;
     
     // wait 13 interrupts (cca 200ms)
     if(TIM0_int_count_angle == 13)
@@ -161,105 +257,24 @@ ISR(TIMER0_OVF_vect)
         TIM0_int_count_angle = 0;
     }
 
-    if(TIM0_int_count_panel == 35)
+    if(TIM0_int_count_panel == 35)  // cca 300ms
     {
         measure_panel = true;
 
         // reset count value
         TIM0_int_count_panel = 0;
     }
-}
 
-ISR(TIMER2_OVF_vect)
-{
-    static uint16_t n_ovfs = 0; // counter variable
-
-    n_ovfs++;
-    if (n_ovfs >= 62) // 62 interrupts = cca 1s
+    if (screen_n_ovfs >= 62) // 62 interrupts = cca 1s
     { 
-        n_ovfs = 0; // reset
-
-        char current[1];
-        char voltage[1];
-        char vertical_angle[1];
-        char power[1];
-
-        oled_init(OLED_DISP_ON);
-        oled_clrscr();
-        oled_charMode(NORMALSIZE);
-
-        // Different layout
-        /*
-        // set position and show text with values
-        oled_gotoxy(0, 2);
-        sprintf(current,"Current: %d mA", propertires.current);
-        oled_puts(current);
-
-        oled_gotoxy(0, 3);
-        sprintf(voltage,"Voltage: %d mV", propertires.voltage);
-        oled_puts(voltage);
-
-        oled_gotoxy(0, 4);
-        sprintf(vertical_angle,"Vertical ang: %d", propertires.angle_vertical);
-        oled_puts(vertical_angle);
-
-        oled_gotoxy(0, 5);
-        sprintf(power,"Power: %d mW/m2", propertires.power);
-        oled_puts(power);
-        */
-
-        // row 1
-        oled_gotoxy(0, 0);
-        oled_puts("Current");
-
-        oled_gotoxy(0, 1);
-        oled_puts("[mA]");
-
-        oled_charMode(DOUBLESIZE);
-        oled_gotoxy(13, 0);
-        sprintf(current,"%d", propertires.current);
-        oled_puts(current);
-
-        // row 2
-        oled_charMode(NORMALSIZE);
-        oled_gotoxy(0, 2);
-        oled_puts("Voltage");
-
-        oled_gotoxy(0, 3);
-        oled_puts("[mV]");
-
-        oled_charMode(DOUBLESIZE);
-        oled_gotoxy(13, 2);
-        sprintf(voltage,"%d", propertires.voltage);
-        oled_puts(voltage);
-
-        // row 3
-        oled_charMode(NORMALSIZE);
-        oled_gotoxy(0, 4);
-        oled_puts("Vertical ang");
-
-        oled_gotoxy(0, 5);
-        oled_puts("[deg]");
-
-        oled_charMode(DOUBLESIZE);
-        oled_gotoxy(13, 4);
-        sprintf(vertical_angle,"%d", propertires.angle_vertical);
-        oled_puts(vertical_angle);
-
-        // row 4
-        oled_charMode(NORMALSIZE);
-        oled_gotoxy(0, 6);
-        oled_puts("Power");
-
-        oled_gotoxy(0, 7);
-        oled_puts("[mW/m2]");
-
-        oled_charMode(DOUBLESIZE);
-        oled_gotoxy(13, 6);
-        sprintf(power,"%d", propertires.power);
-        oled_puts(power);
-
-        // copy buffer to display RAM
-        oled_display();
+        screen_n_ovfs = 0; // reset
+        update_screen = true;
     }
 }
+
+/*
+ISR(TIMER2_OVF_vect)
+{
+    
+}
+/**/

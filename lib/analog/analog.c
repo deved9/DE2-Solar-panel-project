@@ -31,6 +31,16 @@ uint16_t analog_read(uint8_t pin) {
         ADMUX |= ((1<<MUX1) | (1 << MUX0));
         break;
     
+    case 6:
+        ADMUX &= ~((1<<MUX3) | (1<<MUX0));
+        ADMUX |= ((1<<MUX2) | (1 << MUX1));
+        break;
+
+    case 7:
+        ADMUX &= ~((1<<MUX3));
+        ADMUX |= ((1<<MUX1) | (1 << MUX0)) | (1 << MUX2);
+        break;
+    
     default:
         return;
     }

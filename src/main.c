@@ -24,8 +24,8 @@
 #define PR_LR 3
 
 // solar panel current and voltage
-#define SOLAR_I 4
-#define SOLAR_V 5
+#define SOLAR_I 6
+#define SOLAR_V 7
 
 
 // constants
@@ -49,14 +49,19 @@ volatile bool update_screen = false;
 int main()
 {
     servo_init();
-    //servo_test();
+    servo_test();
     analog_init();
 
     propertires.angle_horitzontal = 0;
     propertires.angle_vertical = 0;
+    propertires.current = 0;
+    propertires.voltage = 0;
+    propertires.power = 0;
 
     uart_init(UART_BAUD_SELECT(115200, F_CPU));
     oled_init(OLED_DISP_ON);
+    oled_clrscr();
+    oled_charMode(NORMALSIZE);
 
     TIM0_ovf_16ms();
     TIM0_ovf_enable();
@@ -117,7 +122,7 @@ int main()
                 uart_puts("move up\r\n");
                 err = turn_servo(false, --propertires.angle_vertical);
                 if (err) {
-                    propertires.angle_vertical--;
+                    propertires.angle_vertical++;
                     err = false;
                 }
             }
@@ -127,7 +132,7 @@ int main()
                 uart_puts("move down\r\n");
                 err = turn_servo(false, ++propertires.angle_vertical);
                 if (err) {
-                    propertires.angle_vertical++;
+                    propertires.angle_vertical--;
                     err = false;
                 }
             } 
@@ -138,8 +143,8 @@ int main()
         if(measure_panel)
         {
             cli();
-            propertires.voltage = analog_read(SOLAR_V) * 5000/1023 * ((R_L+R_H)/R_L);
-            propertires.current = ( analog_read(SOLAR_I) - CURR_OFFSET ) * CURR_CONST;
+            propertires.voltage = analog_read(SOLAR_V); //+  5000/1023 * ((R_L+R_H)/R_L);
+            propertires.current = ( analog_read(SOLAR_I));// - CURR_OFFSET ) //* CURR_CONST;
             measure_panel = false;
             sei();
         }
@@ -147,14 +152,14 @@ int main()
         if (update_screen)
         {
             cli();
-            char current[1];
-            char voltage[1];
-            char vertical_angle[1];
-            char power[1];
+            char current[4];
+            char voltage[4];
+            char vertical_angle[2];
+            char power[4];
 
-            oled_init(OLED_DISP_ON);
-            oled_clrscr();
-            oled_charMode(NORMALSIZE);
+            //oled_init(OLED_DISP_ON);
+            //oled_clrscr();
+            //oled_charMode(NORMALSIZE);
 
             // Different layout
             /*
@@ -173,10 +178,11 @@ int main()
 
             oled_gotoxy(0, 5);
             sprintf(power,"Power: %d mW/m2", propertires.power);
-            oled_puts(power);
+            oled_puts(p ower);
             */
 
             // row 1
+            oled_charMode(NORMALSIZE);
             oled_gotoxy(0, 0);
             oled_puts("Current");
 
@@ -186,6 +192,8 @@ int main()
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 0);
             sprintf(current,"%d", propertires.current);
+            oled_puts("    ");
+            oled_gotoxy(13, 0);
             oled_puts(current);
 
             // row 2
@@ -199,6 +207,8 @@ int main()
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 2);
             sprintf(voltage,"%d", propertires.voltage);
+            oled_puts("    ");
+            oled_gotoxy(13, 2);
             oled_puts(voltage);
 
             // row 3

@@ -179,23 +179,85 @@ ISR(TIMER2_OVF_vect)
     { 
         n_ovfs = 0; // reset
 
-        // display setup
+        char current[1];
+        char voltage[1];
+        char vertical_angle[1];
+        char power[1];
+
         oled_init(OLED_DISP_ON);
         oled_clrscr();
         oled_charMode(NORMALSIZE);
 
+        // Different layout
+        /*
         // set position and show text with values
-        oled_gotoxy(0, 1);
-        oled_puts(("Current: %u mA", propertires.current));
-
         oled_gotoxy(0, 2);
-        oled_puts(("Voltage: %u mV", propertires.voltage));
+        sprintf(current,"Current: %d mA", propertires.current);
+        oled_puts(current);
 
         oled_gotoxy(0, 3);
-        oled_puts(("Vertical angle: %u deg", propertires.angle_vertical));
+        sprintf(voltage,"Voltage: %d mV", propertires.voltage);
+        oled_puts(voltage);
 
         oled_gotoxy(0, 4);
-        oled_puts(("Power: %u mW/m2", propertires.power));
+        sprintf(vertical_angle,"Vertical ang: %d", propertires.angle_vertical);
+        oled_puts(vertical_angle);
+
+        oled_gotoxy(0, 5);
+        sprintf(power,"Power: %d mW/m2", propertires.power);
+        oled_puts(power);
+        */
+
+        // row 1
+        oled_gotoxy(0, 0);
+        oled_puts("Current");
+
+        oled_gotoxy(0, 1);
+        oled_puts("[mA]");
+
+        oled_charMode(DOUBLESIZE);
+        oled_gotoxy(13, 0);
+        sprintf(current,"%d", propertires.current);
+        oled_puts(current);
+
+        // row 2
+        oled_charMode(NORMALSIZE);
+        oled_gotoxy(0, 2);
+        oled_puts("Voltage");
+
+        oled_gotoxy(0, 3);
+        oled_puts("[mV]");
+
+        oled_charMode(DOUBLESIZE);
+        oled_gotoxy(13, 2);
+        sprintf(voltage,"%d", propertires.voltage);
+        oled_puts(voltage);
+
+        // row 3
+        oled_charMode(NORMALSIZE);
+        oled_gotoxy(0, 4);
+        oled_puts("Vertical ang");
+
+        oled_gotoxy(0, 5);
+        oled_puts("[deg]");
+
+        oled_charMode(DOUBLESIZE);
+        oled_gotoxy(13, 4);
+        sprintf(vertical_angle,"%d", propertires.angle_vertical);
+        oled_puts(vertical_angle);
+
+        // row 4
+        oled_charMode(NORMALSIZE);
+        oled_gotoxy(0, 6);
+        oled_puts("Power");
+
+        oled_gotoxy(0, 7);
+        oled_puts("[mW/m2]");
+
+        oled_charMode(DOUBLESIZE);
+        oled_gotoxy(13, 6);
+        sprintf(power,"%d", propertires.power);
+        oled_puts(power);
 
         // copy buffer to display RAM
         oled_display();

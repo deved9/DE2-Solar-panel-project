@@ -20,12 +20,13 @@ Po inicializaci může uživatel číst jednotlivé piny pomocí funkce `analog_
 ### Knihovna `servo`
 Knihovna poskytuje trojici funkcí obsluhující horizontální a vertikální servo. Každé servo je řízeno vlastní PWM modulací zajištěnou 16bitovým čítačem 1. Kanál horizontálního serva je vyveden na pin PB1, kanál vertikálního serva je na pinu PB2.
 
-![Arduino pinout](https://images.prismic.io/circuito/8e3a980f0f964cc539b4cbbba2654bb660db6f52_arduino-uno-pinout-diagram.png?auto=compress,format)
+![Arduino pinout](https://www.electronicshub.org/wp-content/smush-webp/2021/01/Arduino-Nano-Pinout.jpg.webp)
+*Arduino NANO pinout, převzato z [^2]*
 
 1. `servo_init()` 
-Funkce aktivuje neninvertující signály PWM a přiřazuje kanály na vybrané piny. V registru `TCCR1B` je nastaven mód ,,Phase and Frequency Correct PWM" [^1], který je dle [^2] vhodný pro řízení motorů. 
+Funkce aktivuje neninvertující signály PWM a přiřazuje kanály na vybrané piny. V registru `TCCR1B` je nastaven mód ,,Phase and Frequency Correct PWM" [^1], který je dle [^3] vhodný pro řízení motorů. 
 
-Je nutné přizpůsobit frekvenci pulzů, u kterých budeme měnit střídu. Výrobce serva udává pracovní frekvenci 50 Hz. Strop modulace (čítače) je dána 16bitovým registrem ICR1. Právě jeho velikost omezuje potencionální jemnost kroku, kterou by bylo možné mít bez využití předděličky (160000 úrovní). Nejbližší nižší hodnota dělení hodinového pulzu je f<sub>CLK</sub>/8. S jeho použitím pak bude platit následující rovnice pro zisk hodnoty maxima (v dokumentaci uváděno také jako TOP):
+Je nutné přizpůsobit frekvenci pulzů, u kterých budeme měnit střídu. Výrobce serva udává pracovní frekvenci 50 Hz. Strop modulace (čítače) je dána 16bitovým registrem ICR1. Jeho velikost nastavuje frekvenci pulzů [^4] a jemnost kroku PWM modulace (výsledného úhlu natočení serva). Nutnost dodržet kmitočet pulzů stanovený výrobcem serva [^5] bohužel znemožňuje využití plného potenciálu mikrokontroléru, respektive jemnosti kroko, které by bylo možné mít bez využití předděličky (160000 úrovní). Nejbližší nižší hodnota dělení hodinového pulzu je f<sub>CLK</sub>/8. S jeho použitím pak bude platit následující rovnice pro zisk hodnoty maxima (v dokumentaci uváděno také jako TOP):
 
 ![Výpočet ICR1](./img/rovnice1.png)
 
@@ -76,9 +77,11 @@ Describe how to use the application. Add photos or videos of your application.
 
 ## Zdroje 
 [^1]: https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
-[^2]: https://avr-guide.github.io/pwm-on-the-atmega328/
-[^3]: https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
-[^4]: https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf
+[^2]: https://www.electronicshub.org/wp-content/smush-webp/2021/01/Arduino-Nano-Pinout.jpg.webp
+[^3]: https://avr-guide.github.io/pwm-on-the-atmega328/
+[^4]: https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm/
+[^5]: https://www.pelikandaniel.com/dld/navod_serva_hitec.pdf
+ 
 
 
 

@@ -12,7 +12,12 @@ Describe your implementation and include block or circuit diagram(s).
 
 Include flowcharts/state diagrams of your algorithm(s) and direct links to the source files in PlatformIO `src` or `lib` folders. Present the libraries you used in the project.
 
-### Knihovna `servo.h`
+### Knihovna `analog`
+Umožňuje čtení napětí na analogových pinech. Nejprve je nutné analogově-digitální převodník inicializovat pomocí funkce `analog_init()`. Zde dochází k volbě 5V napájení jako reference, aktivaci A/D převodníku, nastavení kmitočtové předděličky, nastavení spouštění a vypnutí úsporného režimu. Kmitočtovou předděličku je nutné použít, neboť dokumentace [^1] zaručuje v rozmezí 50 kHz až 200 kHz maximální rozlišení a vůbec správnou funkci převodu. Spouštění je realizováno pomocí volně běžícího režimu (free running mode).
+
+Po inicializaci může uživatel číst jednotlivé piny pomocí funkce `analog_read(pin)`. Vstupním parametrem funkce je číslo analogového pinu na desce a výstupem je přečtená 16bitová celočíselná hodnota napětí. V těle funkce dochází k připojení požadovaného pinu k multiplexu a následnému spuštění konverze nastavením bitu `ADSC` na 1 v registru `ADCSRA`. Následující `while` cyklus využívá výhodné vlastnosti tohoto bitu - při dokončení převodu jej hardware automaticky překlopí na hodnotu 0, takže cyklus zdrží celý proces než je veškerá činnost čtení dokončena. Naměřená hodnota je pak následně čtena z registrů `ADCL` a `ADCH`, které je nutné číst právě v tomto pořadí [^1]. Jelikož `ADCH` obsahuje dva nejvíce významné bity (MSB) naměřeného napětí, je nutné provést bitový posun o 8 bitů, tedy o velikost registru `ADCL`. 
+
+### Knihovna `servo`
 Knihovna poskytuje trojici funkcí obsluhující horizontální a vertikální servo. Každé servo je řízeno vlastní PWM modulací zajištěnou 16bitovým čítačem 1. Kanál horizontálního serva je vyveden na pin PB1, kanál vertikálního serva je na pinu PB2.
 
 ![Arduino pinout](https://images.prismic.io/circuito/8e3a980f0f964cc539b4cbbba2654bb660db6f52_arduino-uno-pinout-diagram.png?auto=compress,format)

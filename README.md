@@ -1,14 +1,22 @@
-### Team members
+### Členové týmu
 
 - Marek Klvaňa
 - Jan Kusák
 - David Maňásek
 
-## Hardware description
+## Popis hardware
 
-Describe your implementation and include block or circuit diagram(s).
+Pro projekt bylo využito Arduino Nano kvůli nedostatku pinů pro analogový vstup na desce Arduino UNO. Jako piny pro signálový výstup pro ovládání servo motorů byly využity piny `PB1` pro horizontální natáčení a `PB2` pro vertikální natáčení. Servo motory jsou napájeny z externího zdroje. OLED display byl připojen pomocí I2C sběrnice na piny `PC4` (SDA) a `PC5` (SCL). Pro snímání intenzity světla jsou využiti 4 fotorezistory tvořící čtyři děliče napětí s rezistory 1kΩ. Při zastínění fotorezistoru jeho odpor vzroste. Výstupní napětí těchto děličů jsou připojeny na analogové piny 0 až 3. Výstupní napětí solárního panelu je připojeno na analogový pin 6.
 
-## Software description
+![Schéma zapojení](./img/schema.png)
+
+### Držák solárního panelu a fotorezistorů
+V programu Fusion 360 byl vytvořen 3D model, který umožňuje zasunutí solárního panelu a zároveň slouží jako držák fotorezistorů s příslušnými přepážkami mezi jednotlivými fotorezistory pro umožnení směrového měření.
+
+![3D model](./img/3D_model.png)
+
+
+## Popis software
 
 Include flowcharts/state diagrams of your algorithm(s) and direct links to the source files in PlatformIO `src` or `lib` folders. Present the libraries you used in the project.
 
@@ -56,6 +64,12 @@ Parametry je bit horizontal, definující zda chceme ovládat horizontální či
 Z první rovnice vyplývá konstanta <i>y</i> = 900, zpětným dosazením pak získáme konstantu <i>x</i>=20/3. 
 
 Výsledky transformací jsou pak přiřazování registrům komparačních hladin OCR1A, nebo OCR1B v závislosti, zda je funkce volána pro ovládání horizontálního nebo vertikálního serva. 
+
+### Natáčení za zdrojem světla
+
+Analogové hodnoty získané z napěťových děličů jsou pomocí knihovny analog přečteny a uloženy do proměnných. Sousední hodnoty jsou poté zprůměrovány. Tyto průměry jsou poté odečteny podle jednotlivých směrů. Tímto získáme rozdíly v osvícení mezi levou a pravou stranou a zároveň horní a dolní stranou. Po porvnání těchto odchylek s pevně nastavenou hodnotou poté měníme úhly natočení jednotlivých servo motorů, aby bylo dosaženo natočení za zdrojem světla. Tato funkce se opakuje každých 200ms.
+
+![Vývojový diagram](./img/nataceni.png)
 
 ## Instructions and photos
 

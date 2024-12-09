@@ -159,14 +159,12 @@ int main()
         if (update_screen)
         {
             cli();
+            
+            // Variables to be printed on display
             char current[4];
             char voltage[4];
             char vertical_angle[3];
             char horizontal_angle[3];
-
-            //oled_init(OLED_DISP_ON);
-            //oled_clrscr();
-            //oled_charMode(NORMALSIZE);
 
             // Different layout
             /*
@@ -180,12 +178,12 @@ int main()
             oled_puts(voltage);
 
             oled_gotoxy(0, 4);
-            sprintf(vertical_angle,"Vertical ang: %d", propertires.angle_vertical);
+            sprintf(vertical_angle,"Vertical ang: %d deg", propertires.vertical_angle);
             oled_puts(vertical_angle);
 
             oled_gotoxy(0, 5);
-            sprintf(horizontal_angle,"horizontal_angle: %d mW/m2", propertires.horizontal_angle);
-            oled_puts(p ower);
+            sprintf(horizontal_angle,"Horizontal ang: %d deg", propertires.horizontal_angle);
+            oled_puts(horizontal_angle);
             */
 
             /*
@@ -199,10 +197,10 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 0);
-            sprintf(current,"%d", propertires.current);
-            oled_puts("    ");
+            sprintf(current,"%d", propertires.current); // convert int to char
+            oled_puts("    "); // clear previous value
             oled_gotoxy(13, 0);
-            oled_puts(current);
+            oled_puts(current); // show new value
             */
 
             // row 2
@@ -215,10 +213,10 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 2);
-            sprintf(voltage,"%d", propertires.voltage);
-            oled_puts("    ");
+            sprintf(voltage,"%d", propertires.voltage); // convert int to char
+            oled_puts("    "); // clear previous value
             oled_gotoxy(13, 2);
-            oled_puts(voltage);
+            oled_puts(voltage); // show new value
 
             // row 3
             oled_charMode(NORMALSIZE);
@@ -230,12 +228,12 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 4);
-            sprintf(vertical_angle,"%d", propertires.angle_vertical-90);
-            oled_puts("   ");
+            sprintf(vertical_angle,"%d", propertires.angle_vertical-90); // convert int to char
+            oled_puts("   "); // clear previous value
             oled_gotoxy(13, 4);
-            oled_puts(vertical_angle);
+            oled_puts(vertical_angle); // show new value
 
-             // row 4
+            // row 4
             oled_charMode(NORMALSIZE);
             oled_gotoxy(0, 6);
             oled_puts("Horiz. ang");
@@ -245,13 +243,14 @@ int main()
 
             oled_charMode(DOUBLESIZE);
             oled_gotoxy(13, 6);
-            sprintf(horizontal_angle,"%d", propertires.angle_horitzontal);
-            oled_puts("   ");
+            sprintf(horizontal_angle,"%d", propertires.angle_horitzontal); // convert int to char
+            oled_puts("   "); // clear previous value
             oled_gotoxy(13, 6);
-            oled_puts(horizontal_angle);
+            oled_puts(horizontal_angle); // show new value
 
             // copy buffer to display RAM and reset interrupt flag
             oled_display();
+
             update_screen = false;
             sei();
         }
@@ -295,10 +294,3 @@ ISR(TIMER0_OVF_vect)
         update_screen = true;
     }
 }
-
-/*
-ISR(TIMER2_OVF_vect)
-{
-    
-}
-*/

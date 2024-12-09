@@ -71,6 +71,10 @@ Analogové hodnoty získané z napěťových děličů jsou pomocí knihovny ana
 
 ![Vývojový diagram](./img/nataceni.png)
 
+### Zobrazení informací o panelu
+
+Informace o výstupním napětí solárního panelu v mV jsou spolu s úhly natočení ve stupních zobrazeny na OLED displeji. Vertikální úhel zobrazuje hodnotu 0 stupňů v případě natočení panelu rovnoběžně s podstavou. K zobrazení jsou použité funkce z knihovny `oled` využívané ve cvičeních a hodnoty jsou čteny z proměnných. Velikosti proudu a výkonu solárního panelu nejsou zobrazeny z důvodu nedostatečné přesnosti dostupného proudového senzoru. Všechny hodnoty na displeji jsou aktualizovány každou 1s.
+
 ## Instructions and photos
 
 Describe how to use the application. Add photos or videos of your application.

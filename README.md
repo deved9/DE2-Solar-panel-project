@@ -42,11 +42,10 @@ Výrobce serva [^5] dále udává doby trvání pulzů, které definují úhel n
 
 Vzájemnou rovností střídy a poměru aktuální nastavené porovnávací hladiny čítače OCR1A (nebo OCR1B pro vertikální servo) vůči ICR1 (stropu) získáme hodnoty pro minimum a maximum rozsahu
 
-![Výpočet kroků](./img/rovnice2.png)
 
 $\frac{t}{T} = \frac{OCR1x}{ICR1} \rightarrow OCR1x = \frac{t \cdot ICR1}{T}$
 
-Dosazením časů trvání pulzů $t$, periody $T = 1/f = 1/50 = 20 ms$ a stropu komparátoru $ICR1 = 20000$ úrovní získáme komparační úrovně pro rozsah serva
+Dosazením časů trvání pulzů $t$, periody $T = 1/f = 1/50 = 20$ ms a stropu komparátoru $ICR1 = 20000$ úrovní získáme komparační úrovně pro rozsah serva
 
 - 0 ° = 900,
 - 180 ° = 2100.
@@ -59,9 +58,9 @@ Funkce zkouší správnost zapojení i softwaru pro ovládání motorů.
 3. `turn_servo(bool, uint8_t)`
 Parametry je bit horizontal, definující zda chceme ovládat horizontální či vertikální servo, a 8bitový integer nesoucí infomaci o úhlu natočení serva. Úhel je následně vložen do rovnice přímky, jejíž parametry byly vypočítány ze soustavy dvou rovnic převodu krajních úhlů rozsahu na komparační hladiny
 
-![Výpočet převodu úhlu na komparační hladinu](./img/rovnice3.png)
 
 $900 = 0x + y$
+
 $2100 = 180x + y$
 
 Z první rovnice vyplývá konstanta <i>y</i> = 900, zpětným dosazením pak získáme konstantu <i>x</i>=20/3. 

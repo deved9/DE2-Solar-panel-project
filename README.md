@@ -17,18 +17,16 @@ V programu Fusion 360 byl vytvořen 3D model, který umožňuje zasunutí solár
 
 
 ## Popis software
-
-Include flowcharts/state diagrams of your algorithm(s) and direct links to the source files in PlatformIO `src` or `lib` folders. Present the libraries you used in the project.
-
 ### Knihovna `analog`
 Umožňuje čtení napětí na analogových pinech. Nejprve je nutné analogově-digitální převodník inicializovat pomocí funkce `analog_init()`. Zde dochází k volbě 5V napájení jako reference, aktivaci A/D převodníku, nastavení kmitočtové předděličky, nastavení spouštění a vypnutí úsporného režimu. Kmitočtovou předděličku je nutné použít, neboť dokumentace [^1] zaručuje v rozmezí 50 kHz až 200 kHz maximální rozlišení a vůbec správnou funkci převodu. Spouštění je realizováno pomocí volně běžícího režimu (free running mode).
 
-Po inicializaci může uživatel číst jednotlivé piny pomocí funkce `analog_read(pin)`. Vstupním parametrem funkce je číslo analogového pinu na desce a výstupem je přečtená 16bitová celočíselná hodnota napětí. V těle funkce dochází k připojení požadovaného pinu k multiplexu a následnému spuštění konverze nastavením bitu `ADSC` na 1 v registru `ADCSRA`. Následující `while` cyklus využívá výhodné vlastnosti tohoto bitu - při dokončení převodu jej hardware automaticky překlopí na hodnotu 0, takže cyklus zdrží celý proces než je veškerá činnost čtení dokončena. Naměřená hodnota je pak následně čtena z registrů `ADCL` a `ADCH`, které je nutné číst právě v tomto pořadí [^1]. Jelikož `ADCH` obsahuje dva nejvíce významné bity (MSB) naměřeného napětí, je nutné provést bitový posun o 8 bitů, tedy o velikost registru `ADCL`. 
+Po inicializaci může uživatel číst jednotlivé piny pomocí funkce `analog_read(pin)`. Vstupním parametrem funkce je číslo analogového pinu na desce a výstupem je přečtená 16bitová hodnota napětí. Uvnitř funkce dochází k připojení požadovaného pinu k multiplexu a následnému spuštění konverze nastavením bitu `ADSC` na 1 v registru `ADCSRA`. Následující `while` cyklus využívá výhodné vlastnosti tohoto bitu - při dokončení převodu jej hardware automaticky překlopí na hodnotu 0, takže cyklus zdrží veškerý proces než je konverze dokončena. Naměřená hodnota je pak následně čtena z registrů `ADCL` a `ADCH`, které je nutné číst právě v tomto pořadí [^1]. Jelikož `ADCH` obsahuje dva nejvíce významné bity (MSB) naměřeného napětí, je nutné provést bitový posun o 8 bitů, tedy o velikost registru `ADCL`. 
 
 ### Knihovna `servo`
 Knihovna poskytuje trojici funkcí obsluhující horizontální a vertikální servo. Každé servo je řízeno vlastní PWM modulací zajištěnou 16bitovým čítačem 1. Kanál horizontálního serva je vyveden na pin PB1, kanál vertikálního serva je na pinu PB2.
 
 ![Arduino pinout](https://www.electronicshub.org/wp-content/smush-webp/2021/01/Arduino-Nano-Pinout.jpg.webp)
+
 *Arduino NANO pinout, převzato z [^2]*
 
 1. `servo_init()` 
@@ -37,7 +35,7 @@ Funkce aktivuje neninvertující signály PWM a přiřazuje kanály na vybrané 
 Je nutné přizpůsobit frekvenci pulzů, u kterých budeme měnit střídu. Výrobce serva udává pracovní frekvenci 50 Hz. Strop modulace (čítače) je dána 16bitovým registrem ICR1. Jeho velikost nastavuje frekvenci pulzů [^4] a jemnost kroku PWM modulace (výsledného úhlu natočení serva). Nutnost dodržet kmitočet pulzů stanovený výrobcem serva [^5] bohužel znemožňuje využití plného potenciálu mikrokontroléru, respektive jemnosti kroko, které by bylo možné mít bez využití předděličky (160000 úrovní). Nejbližší nižší hodnota dělení hodinového pulzu je f<sub>CLK</sub>/8. S jeho použitím pak bude platit následující rovnice pro zisk hodnoty maxima (v dokumentaci uváděno také jako TOP):
 
 ![Výpočet ICR1](./img/rovnice1.png)
-
+$ICR1 = \frac{f_{CLK}}{2 \cdot prescaler \cdot f_{desired}}= \frac{16 \cdot 10^{6}}{2 \cdot 8 \cdot 50}=20000$
 Výrobce serva dále udává doby trvání pulzů, které definují úhel natočení serva:
 - 0 ° = 0,9 ms,
 - 180 ° = 2,1 ms.
